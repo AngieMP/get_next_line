@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*   get_next_line_bonus.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: angmedin <angmedin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/04/14 11:31:19 by angmedin          #+#    #+#             */
-/*   Updated: 2023/04/18 14:48:22 by angmedin         ###   ########.fr       */
+/*   Created: 2023/04/14 11:34:33 by angmedin          #+#    #+#             */
+/*   Updated: 2023/04/18 14:49:00 by angmedin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
 static char	*nolinebreak(char *whole_line)
 {
@@ -40,7 +40,7 @@ static char	*ft_line_and_rest(char **line)
 		rest = ft_strdup(*line + (i + 1));
 		free(*line);
 		*line = rest;
-		return (whole_line);
+		return (nolinebreak(whole_line));
 	}
 	whole_line = ft_strdup(*line);
 	free(*line);
@@ -71,7 +71,7 @@ static char	*rnsend(int read_bytes, int fd, char *buffer, char **line)
 char	*get_next_line(int fd)
 {
 	char		*buffer;
-	static char	*line = NULL;
+	static char	*line[1024];
 	int			read_bytes;
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
@@ -83,32 +83,35 @@ char	*get_next_line(int fd)
 	if (read_bytes < 0)
 	{
 		free(buffer);
-		free(line);
-		line = NULL;
+		free(line[fd]);
+		line[fd] = NULL;
 		return (NULL);
 	}
-	return (rnsend(read_bytes, fd, buffer, &line));
+	return (rnsend(read_bytes, fd, buffer, &line[fd]));
 }
 
 /*#include <stdio.h>
 int	main()
 {
 	char	*line = NULL;
-	int		fd1;
-	fd1 = open("text1.txt", O_RDONLY);
-	//fd2 = open("text2.txt", O_RDONLY);
-	//fd3 = open("text3.txt", O_RDONLY);
-	if (fd1 == -1 )
+	char	*line2 = NULL;
+	int		fd1, fd2;
+	fd1 = open("text7.txt", O_RDONLY);
+	fd2 = open("text8.txt", O_RDONLY);
+	if (fd1 == -1 || fd2 == -1)
 	{
 		printf("Error al abrir el archivo\n");
 		return (1);
 	}
-	while ((line = get_next_line(fd1)))
+	while ((line2 = get_next_line(fd2)) && (line = get_next_line(fd1)))
 	{
+		printf("%s", line2);
 		printf("%s", line);
+		free(line2);
 		free(line);
 	}
 	close(fd1);
+	close(fd2);
 	system("leaks -q a.out");
 	return (0);
 }*/
